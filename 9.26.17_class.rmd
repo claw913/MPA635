@@ -1,0 +1,82 @@
+---
+title: "Untitled"
+author: "Christopher Law"
+date: "September 26, 2017"
+output: html_document
+---
+
+# Pipes
+
+Pipes are neat
+
+```{r pipes}
+library(tidyverse)
+x <- rnorm(1000)
+
+mean(x)
+
+round(mean(x), digits = 2)
+
+sqrt(var(x))
+
+round(sqrt(var(x)),digits = 2)
+
+x %>% 
+  var() %>% 
+  sqrt() %>%  
+  round(digits = 2)
+```
+
+```{r}
+library(readxl)
+library(lubridate)
+
+cr_raw <- read_excel("data/ComicRelief_360Giving_International.xlsx")
+
+cr_clean <- cr_raw %>% 
+  rename(amount = `Amount Awarded`,
+         duration = `Planned Dates:Duration (months)`,
+         program = `Grant Programme:Title`,
+         award_date = `Award Date`) %>% 
+  mutate(award_year = year(award_date)) %>% 
+  mutate(award_year = as.factor(award_year))
+```
+
+```{r plot}
+cr_filtered <-  cr_clean %>% 
+  filter(amount < 3000000)
+
+p1 <- ggplot(cr_filtered, aes(x = duration, y = amount)) +
+  geom_point(aes(color = award_year)) +
+  scale_color_manual(values = c("green", "brown"))+
+  geom_smooth(method = "loess", color = "#273830")+
+  geom_smooth(method = "lm")
+p1
+
+p2 <- p1 + labs(x = "Months", y = "Amount", title = "Cool stuff")
+p2
+
+ggsave(p2, filename = "output/p2plot.pdf", width = 6, height = 6)
+
+library(gridExtra)
+
+grid.arrange(p1, p2)
+
+#if we wanted to save the arranged plot, we need to use it as arrangeGrob insted of gridExtra
+
+windowsFonts()
+
+library(extrafont)
+
+font_import()
+
+#windowsFonts(my_cool_font = windowsFont("Comic Sans MS"))
+
+p3 <- p2 +
+  theme_light(base_size = 14, base_family = "Comic Sans MS")
+
+ggsave(p3, filename = "output/yay.pdf", device = cairo_pdf)
+
+library(ggThemeAssist)
+```
+

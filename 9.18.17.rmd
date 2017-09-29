@@ -1,0 +1,192 @@
+---
+title: "Homework 3"
+author: "Christopher Law"
+date: "9/13/2017"
+output: pdf_document
+---
+
+# Reflection on readings
+First, thanks for all the R practice!! I loved it.   
+I loved the discussion about uncertainty from Cairo. The examples that he presented were so illustrative of the reason this is so important. Truly, you can completely hide the truth behind an omitted or misrepresented statement of variance. Even if most people don't interpret them correctly, confidence intervals are important so that they give the audience a sense of overlap. It at least gets people to think that the stated averages are not perfectly indicative of the data.  
+I thought that it was interesting how intent Cairo was on teaching the basics of the underlying statistics. From this, I thought of the analogy of a child holding a weapon. The child may have a slight idea of how to use the weapon but chances are great that he'll use is in a way to imperils others. The same is true of data visualization; those that have the skills to make sweet graphics might really give people the wrong idea (in a sense, harming them) if the designer doesn't understand statistics. Right now, I'm taking Stats 511 and econometrics so hopefully I can feel comfortable with this material (and write a similarly succinct overview of regression) before the summer is over. I also liked how Cairo showed different ways to illustrate variance. I think that, when possible, variance should be integrated into the chart. I liked how shading can be used to represent this but I think it is best represented when overlapping areas are made obvious. Even a simply box-and-whisker plot can accomplish this. 
+I liked the reading assignment from Why It's So Hard for Us to Visualize Uncertainty because everything was explained to a lay audience. I think the specific example of having the 'gas gauge' chart representing the chances of each candidate winner was interesting - if you are pointing to a specific spot, there's not way to represent uncertainty. This leaves the consumer feeling confused about what they are observing. Although the gauge might be pointing one way, the variance could overlap in a way that makes it difficult to truly assess if the direction is meaningful or if it can be relied on. I like what the flowing dat article said about this gauge - one reason it was misleading was that people already associate such a gauge with something real and entirely different in their lives.     
+Also, the discussion about the way our brains interpret numbers is fascinating. For instance, someone thinks their chance of winning is better if you tell them it's 1 out of 5 versus 20%. Humans also don't really understand the idea of being dealt something unfavorable. If they are told that Clinton has a 70% chance of winning but then she loses, people feel like they need an explanation when in reality there was a very real 30% chance that she would have lost. 
+In conclusion, people representing data have a duty to be knowledgeable about the data they present and the variance associated with the data. Truth is always diminished if certain information is purposefully withheld. 
+
+
+
+# Exercises
+
+```{r load-libraries, warning=FALSE, message=FALSE}
+# Notice the warning=FALSE and message=FALSE in the chunk options. R spits out 
+# a lot of messages when you load tidyverse and we don't want those in the 
+# final document.
+#
+# Load tidyverse and any other libraries 
+library(tidyverse)
+```
+
+## 3.2.4
+
+**1\. Run `ggplot(data = mpg)`. What do you see?**
+
+```{r, fig.width=2, fig.height=2}
+ggplot(data = mpg)
+```
+
+I see a blank plot!
+
+Notice how I used `fig.width` and `fig.height` in the chunk options. You can click on the little gear icon in the far left of the chunk to change other options.
+
+Also notice how I put a `\` before the `.` in the question number. That's to tell Markdown that the number is an actual number and not the start of an ordered list. Without the extra slash, Markdown would parse the `1. Blah blah blah` as a list, not a paragraph. See:
+
+1\. Something
+
+vs.
+
+1. Something
+2. Something else
+3. Another something else
+
+**2\. How many rows are in `mpg`? How many columns?**
+
+```{r}
+nrow(mpg)
+ncol(mpg)
+
+# Or
+dim(mpg)
+
+# Or
+mpg
+```
+
+**3\. What does the `drv` variable describe? Read the help for `?mpg` to find out.**
+
+f = front-wheel drive, r = rear wheel drive, 4 = 4wd
+
+**4\. Make a scatterplot of `hwy` vs `cyl`.**
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = cyl, y = hwy))
+```
+
+**5\. What happens if you make a scatterplot of `class` vs `drv`? Why is the plot not useful?**
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = class, y = drv))
+```
+
+This isn't useful because there's no correlation. The nominal values are limited so there are multiple datapoints at each intersection and we don't have a layer showing the frequency or overlap. 
+
+
+## 3.3.1
+**1\. Why are the points not blue?**
+The parenthesis wasn't closed so it is acting as a label for the datapoints and not as the aesthetic color.
+
+**2\. Categorical or continuous?**
+Categories that I feel are categorial or continuous based on statistics:
+*Categorical
+ *manufacturer
+ *model
+ *displ
+ *year
+ *cyl
+ *trans
+ *drv
+ *fl
+ *class
+*Ordinal
+ *city
+ *hwy
+ 
+ However, R appears to be categorizing the fields with numbers as continuous and strings as categorical. This makes displ, year, cyl, cty, and hwy all continuous. Am I right in this?
+ 
+**3\. Map a continuous variable to color, size, and shape. How do these aesthetics behave differently for categorical vs. continuous variables?**
+
+I get an error 
+ >A continuous variable cannot be mapped to a shape
+**4\. What happens if you map the same variable to multiple aesthetics?**
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x = displ, y = hwy, color = trans, shape = trans, size = trans))
+```
+The legend freaks out and doesn't know what to label. 
+
+**5\. What does the stroke aesthetic do? What shapes does it work with?**
+Stroke is used to modify the width of the border of certain shapes (shapes 21-24) 
+## 3.5.1
+**1\. What happens if you facet on a continuous variable?**
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(~ hwy )
+```
+It makes a crazy, unreadible chart. Way too many subdivisions.
+**2\. What do the empty cells in plot with facet_grid(drv ~ cyl) mean? How do they relate to this plot?**
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl))+
+  facet_grid(drv ~ cyl)
+```
+It means that there's no data point that contains that set of characteristics.
+
+**3\. What plots does the following code make? What does . do?**
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+It makes it so you are only looking at either rows or columns exclusively.
+**4\. What are the advantages to using faceting instead of the colour aesthetic? What are the disadvantages? How might the balance change if you had a larger dataset?**
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x=displ, y = hwy, color = class))
+```
+It allows you to see multiple variables at the same time. With faceting, you can look at multiple variables at the same time while avoiding some of the complexity that comes with adding too many aesthetic variables. With large data sets, faceting could become overwhelming if there were too many columns (e.g. 100).
+## 3.6.1
+**1\. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart? **
+* line chart
+  + geom_line
+* boxplot
+ + geom_boxplot
+* histogram
+ + geom_histogram
+* area chart
+  + geom_area
+**2\. Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+
+**3\. What does show.legend = FALSE do? What happens if you remove it? Why do you think I used it earlier in the chapter?**
+It removes the legend in case it would take up too much space.
+
+**4\. What does the se argument to geom_smooth() do?**
+It shows or hides the standard errors.
+
+**5\. Will these two graphs look different? Why/why not? **
+Yes, they have all the same variables specified.
+
+## 3.8.1
+**1\. What is the problem with this plot? How could you improve it?**  
+There's a lot of overlap - adding jitter will help the visualization.   
+**2\. What parameters to geom_jitter() control the amount of jittering?**  
+width and height

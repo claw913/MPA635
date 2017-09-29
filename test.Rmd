@@ -1,0 +1,75 @@
+---
+title: "Example9.19.17"
+author: "Christopher Law"
+date: "September 19, 2017"
+output: html_document
+---
+# Hello world  
+
+*thing*
+
+*think
+*thin
+*thn
+
+```{r load-packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(scales)
+library(ggthemes)
+```
+
+Now we load the data:
+
+```{r load-data, message=FALSE, warning=FALSE}
+cr <- read_excel("data/ComicRelief_360Giving_International.xlsx")
+
+#glimpse(cr)
+```
+
+Summary Stats
+
+```{r summary-stats}
+x <- mean(cr$`Amount Awarded`)
+median(cr$`Amount Awarded`)
+var(cr$`Amount Awarded`)
+sd(cr$`Amount Awarded`)
+
+sqrt(var(cr$`Amount Awarded`))
+
+summary(cr$`Amount Awarded`)
+```
+
+The average amount donated is `r comma(x)`
+
+# Graphs
+
+## Histograms
+
+```{r hist1}
+ggplot(data = cr, mapping = aes(x = `Amount Awarded`)) + 
+  geom_histogram(bins = 20) +
+  labs(x = "MONEY", y = "count", title = "This is a cool plot", subtitle = "Something")
+
+```
+## Density Plots
+
+```{r density1}
+ggplot(cr, aes(x = `Amount Awarded`)) +
+  geom_density(fill = "red", color = NA) +
+  geom_vline(xintercept = mean(cr$`Amount Awarded`), linetype = "dashed", size = 1)
+
+```
+
+```{r}
+cr_kt <- cr %>%
+  filter(
+  `Beneficiary Location:0:Name` %in% c(
+  "Kenya", "Tanzania")) %>%
+  rename(country = `Beneficiary Location:0:Name`)
+
+ggplot(cr_kt, aes(x = `Amount Awarded`, fill = country)) +
+geom_density(alpha = 0.5)
+```
+
+
